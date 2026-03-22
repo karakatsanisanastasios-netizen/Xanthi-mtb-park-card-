@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Xanthi MTB Card — Εγγραφή Μέλους</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #111; color: #fff; min-height: 100vh; }
+
+  .header { background: #1D9E75; padding: 20px; text-align: center; }
+  .header h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .header p  { font-size: 13px; opacity: 0.85; }
+
+  .section { padding: 20px; max-width: 480px; margin: 0 auto; }
+
+  .intro-card { background: #1a2a1f; border: 1.5px solid #1D9E75; border-radius: 16px; padding: 16px 20px; margin-bottom: 24px; }
+  .intro-card p { font-size: 14px; color: #aaa; line-height: 1.6; }
+  .intro-card strong { color: #1D9E75; }
+
+  label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; margin-top: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+  input, select {
+    width: 100%; padding: 14px 16px; background: #1a1a1a;
+    border: 1.5px solid #333; border-radius: 12px;
+    color: #fff; font-size: 16px; outline: none; appearance: none;
+  }
+  input:focus, select:focus { border-color: #1D9E75; }
+  select option { background: #1a1a1a; }
+  input::placeholder { color: #444; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .btn-submit { width: 100%; margin-top: 24px; padding: 16px; background: #1D9E75; border: none; border-radius: 14px; color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+  .btn-submit:active { opacity: 0.8; }
+  .btn-submit:disabled { background: #333; color: #555; cursor: default; }
+
+  .error-msg { background: #2a1a1a; border: 1.5px solid #E24B4A; border-radius: 12px; padding: 12px 16px; margin-top: 12px; font-size: 14px; color: #E24B4A; display: none; }
+
+  /* Success Screen */
+  .success-screen { text-align: center; padding: 20px; max-width: 480px; margin: 0 auto; }
+  .success-icon { font-size: 56px; margin-bottom: 12px; }
+  .success-title { font-size: 22px; font-weight: 700; color: #1D9E75; margin-bottom: 6px; }
+  .success-sub { font-size: 15px; color: #888; margin-bottom: 20px; }
+
+  .card-preview { background: #1a1a1a; border: 1.5px solid #1D9E75; border-radius: 16px; padding: 20px; margin: 20px 0; }
+  .card-number { font-size: 28px; font-weight: 800; color: #1D9E75; letter-spacing: 3px; margin-bottom: 6px; }
+  .card-name { font-size: 14px; color: #aaa; }
+
+  .qr-wrap { margin: 20px auto; display: inline-block; background: #fff; padding: 12px; border-radius: 12px; }
+  .qr-wrap img { display: block; width: 180px; height: 180px; }
+
+  .qr-label { font-size: 12px; color: #666; margin-top: 8px; }
+
+  .instructions { background: #1a2a1f; border-radius: 12px; padding: 16px; margin-top: 16px; text-align: left; }
+  .instructions h3 { font-size: 13px; color: #1D9E75; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .instructions li { font-size: 13px; color: #aaa; margin-bottom: 6px; padding-left: 4px; list-style: none; }
+  .instructions li::before { content: "→ "; color: #1D9E75; }
+
+  .btn-save { width: 100%; margin-top: 16px; padding: 14px; background: transparent; border: 1.5px solid #1D9E75; border-radius: 14px; color: #1D9E75; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🚵 Xanthi MTB Card</h1>
+  <p>Εγγραφή Νέου Μέλους</p>
+</div>
+
+<!-- SCREEN 1: Registration Form -->
+<div id="screen-form" class="screen active">
+  <div class="section">
+
+    <div class="intro-card">
+      <p>Εγγράψου δωρεάν και <strong>απόκτησε τη δική σου MTB Card</strong>. Κέρδισε πόντους σε κάθε αγορά σου στα συνεργαζόμενα καταστήματα της Ξάνθης!</p>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Όνομα *</label>
+        <input type="text" id="firstName" placeholder="Γιώργης" />
+      </div>
+      <div>
+        <label>Επώνυμο *</label>
+        <input type="text" id="lastName" placeholder="Παπαδόπουλος" />
+      </div>
+    </div>
+
+    <label>Email *</label>
+    <input type="email" id="email" placeholder="email@example.com" />
+
+    <label>Τηλέφωνο *</label>
+    <input type="tel" id="phone" placeholder="69XXXXXXXX" />
+
+    <label>Πόλη / Περιοχή *</label>
+    <select id="city">
+      <option value="">— Επίλεξε —</option>
+      <option value="Ξάνθη">Ξάνθη</option>
+      <option value="Κομοτηνή">Κομοτηνή</option>
+      <option value="Αλεξανδρούπολη">Αλεξανδρούπολη</option>
+      <option value="Καβάλα">Καβάλα</option>
+      <option value="Δράμα">Δράμα</option>
+      <option value="Άβδηρα">Άβδηρα</option>
+      <option value="Άλλη περιοχή">Άλλη περιοχή</option>
+    </select>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <button class="btn-submit" id="btn-submit" onclick="submitRegistration()">
+      Εγγραφή & Λήψη Κάρτας
+    </button>
+
+  </div>
+</div>
+
+<!-- SCREEN 2: Success -->
+<div id="screen-success" class="screen">
+  <div class="success-screen">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Καλωσήρθες!</div>
+    <div class="success-sub" id="success-name"></div>
+
+    <div class="card-preview">
+      <div class="card-number" id="success-card"></div>
+      <div class="card-name">Ο κωδικός της κάρτας σου</div>
+    </div>
+
+    <div class="qr-wrap">
+      <img id="qr-image" src="" alt="QR Code" />
+    </div>
+    <div class="qr-label">Δείξε αυτό το QR στο κατάστημα για check-in</div>
+
+    <div class="instructions">
+      <h3>Τι κάνεις τώρα</h3>
+      <ul>
+        <li>Αποθήκευσε screenshot αυτής της σελίδας</li>
+        <li>Στα συνεργαζόμενα καταστήματα δείξε το QR σου</li>
+        <li>Κέρδισε πόντους σε κάθε αγορά σου</li>
+        <li>Εξαργύρωσε πόντους για δώρα & εκπτώσεις</li>
+      </ul>
+    </div>
+
+    <button class="btn-save" onclick="saveCard()">
+      📸 Αποθήκευσε την κάρτα σου
+    </button>
+
+  </div>
+</div>
+
+<script>
+
+// ⚠️ ΑΛΛΑΞΕ ΕΔΩ το Web App URL από το νέο Deploy:
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycby1gCZQd9WzHSaenTSiOWmV-tu_IAidqpSQdBBu42ABJJnq9ew5BRbfv_lk3LVwuw/exec";
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideError() {
+  document.getElementById('error-msg').style.display = 'none';
+}
+
+function validate() {
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName  = document.getElementById('lastName').value.trim();
+  const email     = document.getElementById('email').value.trim();
+  const phone     = document.getElementById('phone').value.trim();
+  const city      = document.getElementById('city').value;
+
+  if (!firstName || !lastName) { showError("Παρακαλώ συμπλήρωσε όνομα και επώνυμο."); return false; }
+  if (!email || !email.includes('@')) { showError("Παρακαλώ βάλε ένα έγκυρο email."); return false; }
+  if (!phone || phone.length < 10) { showError("Παρακαλώ βάλε ένα έγκυρο τηλέφωνο."); return false; }
+  if (!city) { showError("Παρακαλώ επίλεξε πόλη."); return false; }
+
+  hideError();
+  return true;
+}
+
+async function submitRegistration() {
+  if (!validate()) return;
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Εγγραφή...';
+
+  const payload = {
+    firstName: document.getElementById('firstName').value.trim(),
+    lastName:  document.getElementById('lastName').value.trim(),
+    email:     document.getElementById('email').value.trim(),
+    phone:     document.getElementById('phone').value.trim(),
+    city:      document.getElementById('city').value
+  };
+
+  try {
+    const res    = await fetch(BACKEND_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      showSuccessScreen(result.cardNumber, payload.firstName);
+    } else if (result.error === 'duplicate') {
+      showError(`Αυτό το email έχει ήδη εγγραφεί! Ο κωδικός σου είναι: ${result.cardNumber}`);
+      btn.disabled = false;
+      btn.innerHTML = 'Εγγραφή & Λήψη Κάρτας';
+    } else {
+      showError("Σφάλμα: " + result.message);
+      btn.disabled = false;
+      btn.innerHTML = 'Εγγραφή & Λήψη Κάρτας';
+    }
+  } catch(err) {
+    showError("Σφάλμα σύνδεσης. Δοκίμασε ξανά.");
+    btn.disabled = false;
+    btn.innerHTML = 'Εγγραφή & Λήψη Κάρτας';
+  }
+}
+
+function showSuccessScreen(cardNumber, firstName) {
+  document.getElementById('success-name').textContent = `Γεια σου, ${firstName}! Η κάρτα σου είναι έτοιμη!`;
+  document.getElementById('success-card').textContent = cardNumber;
+
+  // QR που κωδικοποιεί τον κωδικό κάρτας
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(cardNumber)}&color=1D9E75&bgcolor=FFFFFF&margin=8`;
+  document.getElementById('qr-image').src = qrUrl;
+
+  showScreen('screen-success');
+  window.scrollTo(0, 0);
+}
+
+function saveCard() {
+  alert("Κάνε screenshot αυτής της σελίδας για να αποθηκεύσεις την κάρτα σου!\n\niOS: Power + Volume Up\nAndroid: Power + Volume Down");
+}
+
+</script>
+</body>
+</html>
