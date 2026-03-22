@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Xanthi MTB Card — Barista 3 App</title>
+<title>Xanthi MTB Card — Barista App</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #111; color: #fff; min-height: 100vh; }
@@ -16,7 +16,7 @@
   .scan-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
   .scan-frame { width: 60%; height: 60%; border: 2px solid #1D9E75; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.4); }
   .scan-line { position: absolute; width: 58%; height: 2px; background: #1D9E75; animation: scan 2s linear infinite; opacity: 0.8; }
-  @keyframes scan { 0%,100% { top: 20%; } 50% { top: 79%; } }
+  @keyframes scan { 0%,100%{top:20%} 50%{top:79%} }
   #canvas { display: none; }
   .scan-hint { text-align: center; margin-top: 12px; font-size: 13px; color: #666; }
   .card-box { background: #1a2a1f; border: 1.5px solid #1D9E75; border-radius: 16px; padding: 16px 20px; margin-bottom: 16px; }
@@ -28,8 +28,8 @@
   .user-name  { font-size: 15px; font-weight: 600; color: #fff; }
   .user-email { font-size: 13px; color: #aaa; margin-top: 3px; }
   .user-city  { font-size: 12px; color: #1D9E75; margin-top: 2px; }
-  .msg { margin-top: 10px; font-size: 13px; }
-  .msg-loading { color: #666; }
+  .msg { margin-top: 10px; font-size: 13px; display: none; }
+  .msg-loading { color: #888; }
   .msg-error   { color: #E24B4A; }
   label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; margin-top: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
   select, input[type=number], input[type=text] { width: 100%; padding: 14px 16px; background: #1a1a1a; border: 1.5px solid #333; border-radius: 12px; color: #fff; font-size: 16px; outline: none; appearance: none; }
@@ -56,11 +56,10 @@
 <body>
 
 <div class="header">
-  <h1>🚵 Xanthi MTB Card 3</h1>
-  <p>Barista Check-in App 3</p>
+  <h1>🚵 Xanthi MTB Card</h1>
+  <p>Barista Check-in App</p>
 </div>
 
-<!-- SCREEN 1: Scanner -->
 <div id="screen-scan" class="screen active">
   <div class="section">
     <div class="scanner-box">
@@ -75,10 +74,8 @@
   </div>
 </div>
 
-<!-- SCREEN 2: Check-in Form -->
 <div id="screen-form" class="screen">
   <div class="section">
-
     <div class="card-box">
       <div class="card-top">
         <div class="card-icon">🎫</div>
@@ -117,13 +114,10 @@
     <button class="btn-submit" id="btn-submit" onclick="submitCheckin()" disabled>
       ✓ Καταχώρηση Check-in
     </button>
-    <button class="btn-rescan" onclick="startScanner()">
-      ↩ Σκανάρισε ξανά
-    </button>
+    <button class="btn-rescan" onclick="startScanner()">↩ Σκανάρισε ξανά</button>
   </div>
 </div>
 
-<!-- SCREEN 3: Success -->
 <div id="screen-success" class="screen">
   <div class="success-screen">
     <div class="ok-icon">✅</div>
@@ -139,11 +133,11 @@
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
 
-// ── CONFIG — change only these two lines ─────────────
-const LOOKUP_URL  = "https://script.google.com/macros/s/AKfycbyOo2_D_92qfxJ31RplTs9dJk-QlRME7e-JecW7Auqx74FbuwEQkxo31zaCE41Doeg/exec";
-const FORM_ACTION = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSdSNAi0aIOOq0M2T8v_ZOOgf6HIDNT5juZ1mqHnG2UlSGosnw/formResponse";
+// ── CONFIG ────────────────────────────────────────────
+const SHEET_ID    = "10Ak7BNPsBXwdq6djKzURWzMWL8GlefzoApEpCjdxGfQ";
+const MEMBERS_TAB = "MTB Members";
 
-// Google Form entry IDs (do not change)
+const FORM_ACTION  = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSdSNAi0aIOOq0M2T8v_ZOOgf6HIDNT5juZ1mqHnG2UlSGosnw/formResponse";
 const ENTRY_CARD   = "entry.1650439515";
 const ENTRY_STORE  = "entry.1145135016";
 const ENTRY_AMOUNT = "entry.110468251";
@@ -153,16 +147,56 @@ const ENTRY_EMAIL  = "entry.744003285";
 
 let card = "", userName = "", userEmail = "";
 let scanning = false, stream = null;
+let membersCache = null; // cache all members on first load
 
 function screen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-function msg(text, cls) {
+function showMsg(text, cls) {
   const el = document.getElementById('msg');
   el.textContent = text;
-  el.className   = 'msg ' + (cls || '');
+  el.className   = 'msg ' + cls;
+  el.style.display = text ? 'block' : 'none';
+}
+
+// ── FETCH ALL MEMBERS ONCE ────────────────────────────
+async function fetchAllMembers() {
+  if (membersCache) return membersCache;
+
+  // Fetch entire sheet as CSV — simplest and most reliable
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MEMBERS_TAB)}`;
+  const res  = await fetch(url);
+  const csv  = await res.text();
+
+  // Parse CSV
+  const lines   = csv.trim().split('\n');
+  const members = {};
+
+  for (let i = 1; i < lines.length; i++) {
+    // Split by comma but handle quoted fields
+    const cols = lines[i].match(/(".*?"|[^",\n]+)(?=\s*,|\s*$)/g) || [];
+    const clean = cols.map(c => c.replace(/^"|"$/g, '').trim());
+
+    // Columns: 0=timestamp, 1=card, 2=firstName, 3=lastName, 4=email, 5=phone, 6=city
+    const cardKey = clean[1] ? clean[1].toUpperCase() : '';
+    if (cardKey) {
+      members[cardKey] = {
+        cardNumber: clean[1] || '',
+        firstName:  clean[2] || '',
+        lastName:   clean[3] || '',
+        fullName:   ((clean[2] || '') + ' ' + (clean[3] || '')).trim(),
+        email:      clean[4] || '',
+        phone:      clean[5] || '',
+        city:       clean[6] || ''
+      };
+    }
+  }
+
+  membersCache = members;
+  console.log('Members loaded:', Object.keys(members).length, members);
+  return members;
 }
 
 async function startScanner() {
@@ -172,6 +206,10 @@ async function startScanner() {
   document.getElementById('pts-preview').textContent = "";
   document.getElementById('btn-submit').disabled = true;
   document.getElementById('user-info').style.display = 'none';
+  showMsg('', '');
+
+  // Pre-load members in background while scanner opens
+  fetchAllMembers().catch(e => console.warn('Pre-load failed:', e));
 
   try {
     if (stream) stream.getTracks().forEach(t => t.stop());
@@ -182,7 +220,7 @@ async function startScanner() {
     scanning = true;
     requestAnimationFrame(tick);
   } catch(e) {
-    alert("Δεν βρέθηκε κάμερα — δώσε πρόσβαση στην κάμερα.");
+    alert("Δεν βρέθηκε κάμερα — δώσε πρόσβαση.");
   }
 }
 
@@ -210,28 +248,27 @@ function onScan(raw) {
   document.getElementById('display-card').textContent = card;
   document.getElementById('user-info').style.display  = 'none';
   document.getElementById('btn-submit').disabled      = true;
-  msg('⏳ Αναζήτηση χρήστη...', 'msg-loading');
+  showMsg('⏳ Αναζήτηση χρήστη...', 'msg-loading');
   screen('screen-form');
 
-  // GET request — bypasses CORS restriction
-  fetch(`${LOOKUP_URL}?action=lookup&card=${encodeURIComponent(card)}`)
-    .then(r => r.json())
-    .then(data => {
-      if (data.found) {
-        userName  = data.fullName  || ((data.firstName || "") + " " + (data.lastName || "")).trim();
-        userEmail = data.email     || "";
+  fetchAllMembers()
+    .then(members => {
+      const user = members[card];
+      if (user) {
+        userName  = user.fullName;
+        userEmail = user.email;
         document.getElementById('user-name').textContent  = "👤 " + userName;
         document.getElementById('user-email').textContent = "📧 " + userEmail;
-        document.getElementById('user-city').textContent  = data.city ? "🏙️ " + data.city : "";
+        document.getElementById('user-city').textContent  = user.city ? "🏙️ " + user.city : "";
         document.getElementById('user-info').style.display = 'block';
-        msg('', '');
+        showMsg('', '');
       } else {
-        msg('⚠️ ' + (data.message || 'Η κάρτα δεν βρέθηκε στο μητρώο'), 'msg-error');
+        showMsg('⚠️ Η κάρτα ' + card + ' δεν βρέθηκε στο μητρώο', 'msg-error');
       }
       updatePoints();
     })
     .catch(e => {
-      msg('⚠️ Σφάλμα σύνδεσης: ' + e.message, 'msg-error');
+      showMsg('⚠️ Σφάλμα φόρτωσης: ' + e.message, 'msg-error');
       updatePoints();
     });
 }
@@ -261,7 +298,7 @@ async function submitCheckin() {
 
   try {
     await fetch(FORM_ACTION, { method: "POST", mode: "no-cors", body: fd });
-  } catch(e) { /* no-cors always throws — this is expected */ }
+  } catch(e) { /* no-cors always throws — expected */ }
 
   document.getElementById('ok-card').textContent   = card;
   document.getElementById('ok-name').textContent   = userName || "";
