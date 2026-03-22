@@ -7,14 +7,10 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #111; color: #fff; min-height: 100vh; }
-
   .header { background: #1D9E75; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
   .header h1 { font-size: 17px; font-weight: 600; }
-  .header p { font-size: 12px; opacity: 0.8; }
-
+  .header p  { font-size: 12px; opacity: 0.8; }
   .section { padding: 20px; }
-
-  /* Scanner */
   .scanner-box { position: relative; background: #1a1a1a; border-radius: 16px; overflow: hidden; aspect-ratio: 1; max-width: 340px; margin: 0 auto; border: 2px solid #1D9E75; }
   #video { width: 100%; height: 100%; object-fit: cover; display: block; }
   .scan-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
@@ -22,38 +18,29 @@
   .scan-line { position: absolute; width: 58%; height: 2px; background: #1D9E75; animation: scan 2s linear infinite; opacity: 0.8; }
   @keyframes scan { 0%,100% { top: 20%; } 50% { top: 79%; } }
   #canvas { display: none; }
-
   .scan-hint { text-align: center; margin-top: 12px; font-size: 13px; color: #666; }
-
-  /* Card detected */
-  .card-detected { background: #1a2a1f; border: 1.5px solid #1D9E75; border-radius: 16px; padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; }
+  .card-detected { background: #1a2a1f; border: 1.5px solid #1D9E75; border-radius: 16px; padding: 16px 20px; margin-bottom: 16px; }
+  .card-top { display: flex; align-items: center; gap: 14px; }
   .card-icon { width: 44px; height: 44px; border-radius: 10px; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
   .card-num { font-size: 20px; font-weight: 700; color: #1D9E75; letter-spacing: 1px; }
   .card-label { font-size: 11px; color: #666; margin-bottom: 2px; }
-
-  /* Form */
+  .user-info { margin-top: 12px; padding-top: 12px; border-top: 1px solid #1D9E75; display: none; }
+  .user-name  { font-size: 15px; font-weight: 600; color: #fff; }
+  .user-email { font-size: 13px; color: #aaa; margin-top: 3px; }
+  .user-city  { font-size: 12px; color: #1D9E75; margin-top: 2px; }
+  .user-loading { margin-top: 10px; font-size: 13px; color: #666; display: none; }
+  .user-error   { margin-top: 10px; font-size: 13px; color: #E24B4A; display: none; }
   label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; margin-top: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
-  select, input[type=number], input[type=text] {
-    width: 100%; padding: 14px 16px; background: #1a1a1a; border: 1.5px solid #333;
-    border-radius: 12px; color: #fff; font-size: 16px; outline: none; appearance: none;
-  }
+  select, input[type=number], input[type=text] { width: 100%; padding: 14px 16px; background: #1a1a1a; border: 1.5px solid #333; border-radius: 12px; color: #fff; font-size: 16px; outline: none; appearance: none; }
   select:focus, input:focus { border-color: #1D9E75; }
   select option { background: #1a1a1a; }
-
   .amount-wrap { position: relative; }
   .amount-wrap input { padding-left: 36px; }
   .euro { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #1D9E75; font-size: 18px; font-weight: 600; }
-
   .points-preview { margin-top: 8px; font-size: 13px; color: #1D9E75; text-align: right; }
-
-  .btn-submit { width: 100%; margin-top: 24px; padding: 16px; background: #1D9E75; border: none; border-radius: 14px; color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-  .btn-submit:active { opacity: 0.8; }
-  .btn-submit:disabled { background: #333; color: #666; cursor: default; }
-
+  .btn-submit { width: 100%; margin-top: 24px; padding: 16px; background: #1D9E75; border: none; border-radius: 14px; color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; }
+  .btn-submit:disabled { background: #333; color: #555; cursor: default; }
   .btn-rescan { width: 100%; margin-top: 12px; padding: 14px; background: transparent; border: 1.5px solid #333; border-radius: 14px; color: #888; font-size: 15px; cursor: pointer; }
-  .btn-rescan:active { border-color: #555; }
-
-  /* Success */
   .success-screen { text-align: center; padding: 40px 20px; }
   .success-icon { font-size: 64px; margin-bottom: 16px; }
   .success-title { font-size: 24px; font-weight: 700; color: #1D9E75; margin-bottom: 8px; }
@@ -61,8 +48,6 @@
   .success-points { font-size: 36px; font-weight: 800; color: #fff; margin: 20px 0; }
   .success-points span { font-size: 16px; color: #666; font-weight: 400; }
   .btn-new { margin-top: 24px; padding: 16px 40px; background: #1D9E75; border: none; border-radius: 14px; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
-
-  /* Screens */
   .screen { display: none; }
   .screen.active { display: block; }
 </style>
@@ -95,21 +80,21 @@
 <div id="screen-form" class="screen">
   <div class="section">
 
-    <div class="card-detected" id="card-box">
-      <div style="display:flex; align-items:center; gap:14px; margin-bottom:8px;">
+    <div class="card-detected">
+      <div class="card-top">
         <div class="card-icon">🎫</div>
         <div>
           <div class="card-label">Κάρτα Μέλους</div>
           <div class="card-num" id="display-card">MTB-0001</div>
         </div>
       </div>
-      <div id="user-info" style="display:none; border-top:1px solid #1D9E75; padding-top:10px; margin-top:4px;">
-        <div style="font-size:15px; font-weight:600; color:#fff;" id="user-name"></div>
-        <div style="font-size:13px; color:#888; margin-top:3px;" id="user-email"></div>
-        <div style="font-size:12px; color:#1D9E75; margin-top:2px;" id="user-city"></div>
+      <div class="user-loading" id="user-loading">⏳ Αναζήτηση χρήστη...</div>
+      <div class="user-error"   id="user-error">⚠️ Η κάρτα δεν βρέθηκε στο μητρώο</div>
+      <div class="user-info"    id="user-info">
+        <div class="user-name"  id="user-name"></div>
+        <div class="user-email" id="user-email"></div>
+        <div class="user-city"  id="user-city"></div>
       </div>
-      <div id="user-loading" style="display:none; font-size:13px; color:#666; margin-top:8px;">⏳ Αναζήτηση χρήστη...</div>
-      <div id="user-not-found" style="display:none; font-size:13px; color:#E24B4A; margin-top:8px;">⚠️ Η κάρτα δεν βρέθηκε στο μητρώο</div>
     </div>
 
     <label>Κατάστημα</label>
@@ -147,27 +132,31 @@
     <div class="success-icon">✅</div>
     <div class="success-title">Check-in OK!</div>
     <div class="success-sub" id="success-card"></div>
+    <div class="success-sub" id="success-name"></div>
     <div class="success-sub" id="success-store"></div>
     <div class="success-points" id="success-points"></div>
-    <button class="btn-new" onclick="startScanner()">
-      + Νέο Check-in
-    </button>
+    <button class="btn-new" onclick="startScanner()">+ Νέο Check-in</button>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
 
-// ⚠️ ΑΛΛΑΞΕ ΕΔΩ το URL του Apps Script σου μετά το Deploy:
 const FORM_ACTION = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSdSNAi0aIOOq0M2T8v_ZOOgf6HIDNT5juZ1mqHnG2UlSGosnw/formResponse";
-// ⚠️ Βάλε εδώ το Web App URL του MTB_Registration_Backend_v3.gs
-const LOOKUP_URL = "https://script.google.com/macros/s/AKfycbyOo2_D_92qfxJ31RplTs9dJk-QlRME7e-JecW7Auqx74FbuwEQkxo31zaCE41Doeg/exec";
+const LOOKUP_URL  = "https://script.google.com/macros/s/AKfycbyOo2_D_92qfxJ31RplTs9dJk-QlRME7e-JecW7Auqx74FbuwEQkxo31zaCE41Doeg/exec";
 
-let currentCard = "";
-let currentUserName = "";
+// Google Form entry IDs
+const ENTRY_CARD   = "entry.1650439515";
+const ENTRY_STORE  = "entry.1145135016";
+const ENTRY_AMOUNT = "entry.110468251";
+const ENTRY_NAME   = "entry.1906187889";
+const ENTRY_EMAIL  = "entry.744003285";
+
+let currentCard      = "";
+let currentUserName  = "";
 let currentUserEmail = "";
-let scanning = false;
-let stream = null;
+let scanning         = false;
+let stream           = null;
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -176,15 +165,17 @@ function showScreen(id) {
 
 async function startScanner() {
   showScreen('screen-scan');
-  currentCard = "";
-  document.getElementById('amount').value = "";
+  currentCard      = "";
+  currentUserName  = "";
+  currentUserEmail = "";
+  document.getElementById('amount').value       = "";
   document.getElementById('points-preview').textContent = "";
   document.getElementById('btn-submit').disabled = true;
 
   try {
     if (stream) stream.getTracks().forEach(t => t.stop());
-    stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment", width: 640, height: 640 } 
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment", width: 640, height: 640 }
     });
     const video = document.getElementById('video');
     video.srcObject = stream;
@@ -192,16 +183,16 @@ async function startScanner() {
     scanning = true;
     requestAnimationFrame(scanFrame);
   } catch(e) {
-    alert("Δεν βρέθηκε κάμερα. Βεβαιώσου ότι έδωσες πρόσβαση στην κάμερα.");
+    alert("Δεν βρέθηκε κάμερα. Δώσε πρόσβαση στην κάμερα.");
   }
 }
 
 function scanFrame() {
   if (!scanning) return;
-  const video = document.getElementById('video');
+  const video  = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   if (video.readyState === video.HAVE_ENOUGH_DATA) {
-    canvas.width = video.videoWidth;
+    canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -222,20 +213,17 @@ function onQRDetected(data) {
   const match = data.match(/MTB-\d+/i);
   currentCard = match ? match[0].toUpperCase() : data.substring(0, 20);
 
-  document.getElementById('display-card').textContent = currentCard;
-  document.getElementById('user-info').style.display = 'none';
-  document.getElementById('user-not-found').style.display = 'none';
+  document.getElementById('display-card').textContent  = currentCard;
+  document.getElementById('user-info').style.display    = 'none';
+  document.getElementById('user-error').style.display   = 'none';
   document.getElementById('user-loading').style.display = 'block';
-  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('btn-submit').disabled         = true;
 
   showScreen('screen-form');
   lookupUser(currentCard);
 }
 
 async function lookupUser(cardNumber) {
-  currentUserName  = "";
-  currentUserEmail = "";
-
   try {
     const res    = await fetch(LOOKUP_URL, {
       method: "POST",
@@ -246,27 +234,28 @@ async function lookupUser(cardNumber) {
     document.getElementById('user-loading').style.display = 'none';
 
     if (result.found) {
-      currentUserName  = result.firstName + " " + result.lastName;
-      currentUserEmail = result.email;
+      currentUserName  = result.fullName  || (result.firstName + " " + result.lastName).trim();
+      currentUserEmail = result.email     || "";
 
       document.getElementById('user-name').textContent  = "👤 " + currentUserName;
       document.getElementById('user-email').textContent = "📧 " + currentUserEmail;
-      document.getElementById('user-city').textContent  = "🏙️ " + result.city;
+      document.getElementById('user-city').textContent  = result.city ? "🏙️ " + result.city : "";
       document.getElementById('user-info').style.display = 'block';
     } else {
-      document.getElementById('user-not-found').style.display = 'block';
+      document.getElementById('user-error').style.display = 'block';
     }
   } catch(err) {
     document.getElementById('user-loading').style.display = 'none';
-    document.getElementById('user-not-found').style.display = 'block';
+    document.getElementById('user-error').style.display   = 'block';
   }
 
-  updateSubmitBtn();
+  updatePoints();
 }
 
 function updatePoints() {
-  const amount = parseFloat(document.getElementById('amount').value) || 0;
-  const points = Math.floor(amount);
+  const amount  = parseFloat(document.getElementById('amount').value) || 0;
+  const points  = Math.floor(amount);
+  const loading = document.getElementById('user-loading').style.display !== 'none';
   const preview = document.getElementById('points-preview');
 
   if (amount > 0) {
@@ -274,13 +263,8 @@ function updatePoints() {
   } else {
     preview.textContent = "";
   }
-  updateSubmitBtn();
-}
 
-function updateSubmitBtn() {
-  const amount  = parseFloat(document.getElementById('amount').value) || 0;
-  const loading = document.getElementById('user-loading').style.display !== 'none';
-  document.getElementById('btn-submit').disabled = amount <= 0 || loading;
+  document.getElementById('btn-submit').disabled = (amount <= 0 || loading);
 }
 
 async function submitCheckin() {
@@ -292,13 +276,13 @@ async function submitCheckin() {
   const amount = document.getElementById('amount').value;
   const points = Math.floor(parseFloat(amount));
 
-  // Submit to Google Form — auto-fills Name & Email from lookup
+  // Submit to Google Form with all 5 fields
   const formData = new FormData();
-  formData.append("entry.1650439515",   currentCard);
-  formData.append("entry.1145135016",  store);
-  formData.append("entry.110468251", amount);
-  formData.append("entry.1906187889",   currentUserName);
-  formData.append("entry.744003285",  currentUserEmail);
+  formData.append(ENTRY_CARD,   currentCard);
+  formData.append(ENTRY_STORE,  store);
+  formData.append(ENTRY_AMOUNT, amount);
+  formData.append(ENTRY_NAME,   currentUserName);
+  formData.append(ENTRY_EMAIL,  currentUserEmail);
 
   try {
     await fetch(FORM_ACTION, {
@@ -307,16 +291,17 @@ async function submitCheckin() {
       body: formData
     });
   } catch(err) {
-    // no-cors — treat as success
+    // no-cors always throws — treat as success
   }
 
-  document.getElementById('success-card').textContent = currentCard;
+  document.getElementById('success-card').textContent  = currentCard;
+  document.getElementById('success-name').textContent  = currentUserName || "";
   document.getElementById('success-store').textContent = store;
-  document.getElementById('success-points').innerHTML = `+${points} <span>πόντοι</span>`;
+  document.getElementById('success-points').innerHTML  = `+${points} <span>πόντοι</span>`;
   showScreen('screen-success');
 }
 
-// Ξεκίνα scanner
+// Start on load
 startScanner();
 </script>
 </body>
